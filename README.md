@@ -97,10 +97,4 @@ paper. External contributions are not accepted.
 
 ------------------------------------------------------------------------
 
-## License
-
-GNU Affero General Public License v3.0 (AGPL-3.0)
-
-------------------------------------------------------------------------
-
 > *“Intelligence as powerful and alive, yet deliberately hollow at its center — governed, observable, and stripped of its identity.”*
