@@ -29,13 +29,6 @@ jobs:
           working_directory: Papers/PrePrint-arXiv-Zenodo/arXiv-LaTeX
           root_file: PaperOne.tex
 
-      # -------- Compile TMLR Version --------
-      - name: Compile TMLR Version
-        uses: xu-cheng/latex-action@v3
-        with:
-          working_directory: Papers/Journal/TMLR
-          root_file: main.tex
-
       # -------- Prepare GitHub Pages Content --------
       - name: Prepare Pages content
         run: |
@@ -48,7 +41,6 @@ jobs:
 
           # Copy PDFs (renamed cleanly for public)
           cp Papers/PrePrint-arXiv-Zenodo/arXiv-LaTeX/PaperOne.pdf public/papers/RLAE-Preprint.pdf
-          cp Papers/Journal/TMLR/main.pdf public/papers/RLAE-TMLR-Submission.pdf
 
       # -------- Upload Pages artifact --------
       - name: Upload Pages artifact
