@@ -1,6 +1,6 @@
 <img width="1920" height="1080" alt="RLAE SVAR" src="https://github.com/user-attachments/assets/d581cd67-3c90-493f-b5e6-e739729aaed1" />
 
-# On the Structural Limitations of Weight-Based Neural Adaptation and the Role of Reversible Behavioral Learning
+# Reversible Behavioral Learning
 
 This repository contains the implementation and experimental framework
 accompanying the paper:
@@ -97,4 +97,4 @@ paper. External contributions are not accepted.
 
 ------------------------------------------------------------------------
 
-> *“Intelligence as powerful and alive, yet deliberately hollow at its center — governed, observable, and stripped of its identity.”*
+> *“To Learn Without the Possibility of Undoing is not Intelligence, It's a Surrender to Emergence.”*
