@@ -2,6 +2,8 @@
 
 # Reversible Behavioral Learning
 
+[![Build and Deploy REVA4 Papers](https://github.com/PardhuSreeRushiVarma20060119/rlae-research/actions/workflows/builder-deployment.yml/badge.svg)](https://github.com/PardhuSreeRushiVarma20060119/rlae-research/actions/workflows/builder-deployment.yml)
+
 This repository contains the implementation and experimental framework
 accompanying the paper:
 
