@@ -26,7 +26,7 @@ jobs:
       - name: Compile arXiv Version
         uses: xu-cheng/latex-action@v3
         with:
-          working_directory: Papers/PrePrint-arXiv-Zenodo/arXiv-LaTeX
+          working_directory: Papers/Paper-1/arXiv-LaTeX
           root_file: PaperOne.tex
 
       # -------- Prepare GitHub Pages Content --------
@@ -40,7 +40,7 @@ jobs:
           cp -r arts public/arts
 
           # Copy PDFs (renamed cleanly for public)
-          cp Papers/PrePrint-arXiv-Zenodo/arXiv-LaTeX/PaperOne.pdf public/papers/RLAE-Preprint.pdf
+          cp Papers/Paper-1/arXiv-LaTeX/PaperOne.pdf public/papers/RLAE-Preprint.pdf
 
       # -------- Upload Pages artifact --------
       - name: Upload Pages artifact
