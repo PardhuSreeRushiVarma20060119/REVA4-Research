@@ -1,0 +1,630 @@
+
+\documentclass{article} 
+\usepackage{collas2026_conference,times}
+\usepackage{easyReview}
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc}    
+\usepackage{hyperref}      
+\usepackage{url}            
+\usepackage{booktabs}       
+\usepackage{amsfonts}      
+\usepackage{nicefrac}     
+\usepackage{microtype}     
+\usepackage{xcolor}         
+\usepackage{multirow}
+\usepackage{wrapfig,lipsum,booktabs}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{placeins}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand{\elena}[1]{{\color{magenta}{[Elena: #1]}}}
+\newcommand{\tibi}[1]{{\color{blue}{[Tibi: #1]}}}
+
+
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=red,
+    filecolor=magenta,
+    urlcolor=blue,
+    citecolor=purple,
+    pdftitle={The Formal Theory of Reversible Behavioral Learning},
+    pdfpagemode=FullScreen,
+    }
+
+
+\title{The Formal Theory of Reversible Behavioral Learning: \\
+Path Functionals and Behavioral Geometry}
+
+
+\author{Pardhu Sri Rushi Varma Konduru \\
+    Malla Reddy University \\
+    Hyderabad, Telangana, India \\
+    \texttt{pardhuvarma.cs@gmail.com}
+}
+
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+%\collasfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+\preprintcopy 
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+Prior work established structural irreversibility as a fundamental property of weight-based neural 
+adaptation and introduced Runtime Low-Rank Adaptive Environments (RLAE), a paradigm in which 
+adaptive behavior is encoded in a separable parameter set $\phi$, admitting deterministic rollback 
+via an explicit unload operator $\mathcal{K}$, with recoverability validated empirically across 
+model scales. That framework established \textit{that} behavioral change can be structurally 
+reversed---but left open \textit{how} behavioral change evolves within the reversible setting.
+
+This paper develops a geometric and variational theory of behavioral evolution within RLAE. We 
+model adaptation as a continuous trajectory in behavioral parameter space $\Phi$, introduce 
+Behavioral Path Functionals (BPF) as cost functionals over such trajectories, and instantiate 
+them via the Informational Geodesic Path Functional (IGPF), which assigns cost through 
+information-theoretic divergence between successive behavioral states. Extending SVAR, we show 
+that local behavioral sensitivity admits a quadratic approximation inducing a Riemannian metric 
+over $\Phi$, from which Geodesic Behavioral Distance (GBD) is defined as the minimal-cost 
+transformation between behavioral states. Variational analysis of the IGPF yields the central 
+result: optimal behavioral evolution follows geodesics, establishing a formal connection to natural 
+gradient methods.
+
+These results extend RLAE from a structural recoverability guarantee to a geometric theory of 
+behavioral dynamics, establishing adaptation as a path-dependent process governed by information 
+geometry over $\Phi$.
+\end{abstract}
+
+
+\section{Introduction}\label{section-introduction}
+
+Modern neural systems increasingly rely on post-training adaptation to incorporate new tasks,
+align behavior, and operate under changing objectives. A central question in this setting is
+whether adaptive changes can be governed, audited, and reversed without compromising the
+integrity of the underlying model. In prior work~\cite{konduru2026structurallimitationsweightbasedneural}, we examined adaptation
+from a structural perspective and identified a fundamental limitation of weight-based approaches:
+modifications applied directly to shared model parameters $\theta$ introduce behavioral changes
+that are entangled with core model representations and cannot, in general, be deterministically
+undone. We formalized this as \textit{structural irreversibility} and demonstrated empirically
+that rollback under direct weight mutation requires either explicit parameter checkpoints or
+retraining, with no guarantee of behavioral equivalence.
+
+To address this limitation, we introduced \textit{Runtime Low-Rank Adaptive Environments}
+(RLAE) in prior work, a paradigm in which adaptive behavior is represented exclusively in a separable
+behavioral parameter set $\phi$, leaving the core parameter set $\theta$ frozen throughout
+adaptation. An explicit unload operator $\mathcal{K}$ removes the behavioral component
+entirely, restoring the model to its baseline identity without approximation or retraining.
+This establishes reversibility as a structural property of the adaptation mechanism itself,
+validated empirically via the Recoverability Factor (RF), Identity Leakage Score (ILS), and
+Structural Variance Analysis for Robustness (SVAR) across multiple model scales.
+
+Earlier in prior work, we introduced RLAE as a structural framework for
+reversible behavioral adaptation, focusing on identity preservation and deterministic rollback
+under parameter isolation. The scope of that work was centered on the existence and
+reversibility of behavioral states, establishing recoverability as a first-class property of
+adaptive systems.
+
+Building on this foundation, a natural next step is to examine not only whether behavioral
+states can be reached and reversed, but how transitions between such states are structured.
+In particular, the RLAE formulation treats adaptation as a sequence of discrete updates to
+$\phi$, without explicitly modeling continuity, path dependence, or the geometry of
+behavioral change over $\Phi$.
+
+This motivates a shift from state-level reasoning to a path-based formalization of
+adaptation, in which behavioral evolution is treated as a continuous transformation with
+associated cost, structure, and optimality conditions. In this work, we develop this
+perspective through the introduction of Behavioral Path Functionals (BPF), which assign 
+a scalar cost to trajectories in $\Phi$, enabling adaptation to be formulated as an
+optimization problem over paths rather than over parameter values directly. We instantiate
+this general framework through the \textit{Informational Geodesic Path Functional} (IGPF),
+in which trajectory cost is induced by information-theoretic divergence between successive
+behavioral states. This extends the KL-based divergence metrics introduced in prior work
+from static diagnostic tools into a variational structure governing behavioral transitions.
+
+Geometric structure over $\Phi$ arises naturally from SVAR. The quadratic approximation of
+local behavioral sensitivity under bounded perturbations of $\phi$ defines a Riemannian
+metric over the behavioral parameter space, without modifying $\theta$ or the unload
+semantics of RLAE. This metric gives rise to \textit{Geodesic Behavioral Distance} (GBD),
+the minimal-cost transformation between behavioral states under the induced geometry.
+Variational analysis of the IGPF then yields the central result of this paper: optimal
+behavioral evolution follows geodesics under this metric, establishing a formal and
+principled connection to natural gradient methods.
+
+The contributions of this paper are as follows:
+
+\begin{itemize}
+    \item We introduce \textit{Behavioral Path Functionals} (BPF) as a general variational
+    framework for modeling adaptation as a path-dependent process over the behavioral
+    parameter space $\Phi$.
+
+    \item We define the \textit{Informational Geodesic Path Functional} (IGPF), which
+    grounds trajectory cost in information-theoretic divergence, extending the divergence
+    metrics of prior work into a variational setting.
+
+    \item We derive a Riemannian metric over $\Phi$ from SVAR, establishing a natural
+    geometric structure over the behavioral parameter space that is consistent with the
+    frozen-core constraint of RLAE.
+
+    \item We formalize \textit{Geodesic Behavioral Distance} (GBD) and establish through
+    variational analysis that optimal behavioral evolution follows geodesics, connecting
+    reversible adaptation to natural gradient methods.
+\end{itemize}
+
+Together, these results extend RLAE from a structural recoverability guarantee to a complete
+geometric theory of behavioral dynamics. Adaptation within the reversible setting is
+reframed as a path-dependent process governed by information geometry over $\Phi$, providing
+a principled foundation for analyzing the efficiency, stability, and controllability of
+neural adaptation in modular and long-lived systems.
+
+\newpage
+
+\bibliography{collas2026_conference}
+\bibliographystyle{collas2026_conference}
+
+\newpage
+
+\appendix
+
+\section*{Appendix}
+
+\section{Additional Theoretical Details}
+\label{appendix:proofs}
+
+For completeness, we restate the progress bound used in the main text.
+
+\paragraph{Progress bound under projected updates.}
+Let
+\begin{equation}
+\theta^+ = \theta - \eta P_S \nabla \mathcal{J}_t(\theta),
+\label{eq:appendix_theta_plus}
+\end{equation}
+where $P_S$ is the orthogonal projector associated with the fixed trainable subset $S$. Assume that $\mathcal{J}_t$ is $L$-smooth on a neighborhood containing both $\theta$ and $\theta^+$. Then
+\begin{equation}
+\mathcal{J}_t(\theta^+)
+\le
+\mathcal{J}_t(\theta)
+-
+\eta \|P_S \nabla \mathcal{J}_t(\theta)\|^2
++
+\frac{L\eta^2}{2}\|P_S \nabla \mathcal{J}_t(\theta)\|^2.
+\label{eq:appendix_descent_1}
+\end{equation}
+Equivalently,
+\begin{equation}
+\mathcal{J}_t(\theta^+)
+\le
+\mathcal{J}_t(\theta)
+-
+\eta \Bigl(1-\frac{L\eta}{2}\Bigr)\|P_S \nabla \mathcal{J}_t(\theta)\|^2.
+\label{eq:appendix_descent_2}
+\end{equation}
+In particular, if $0 < \eta \le 1/L$, then
+\begin{equation}
+\mathcal{J}_t(\theta^+)
+\le
+\mathcal{J}_t(\theta)
+-
+\frac{\eta}{2}\|P_S \nabla \mathcal{J}_t(\theta)\|^2.
+\label{eq:appendix_descent_3}
+\end{equation}
+
+\paragraph{Proof.}
+Since $\mathcal{J}_t$ is $L$-smooth, for any $x,y$ in the neighborhood of interest,
+\begin{equation}
+\mathcal{J}_t(y)
+\le
+\mathcal{J}_t(x)
++
+\langle \nabla \mathcal{J}_t(x), y-x \rangle
++
+\frac{L}{2}\|y-x\|^2.
+\label{eq:appendix_smoothness}
+\end{equation}
+Apply \ref{eq:appendix_smoothness} with $x=\theta$ and $y=\theta^+$. Using \ref{eq:appendix_theta_plus},
+\begin{equation}
+\theta^+ - \theta = -\eta P_S \nabla \mathcal{J}_t(\theta).
+\label{eq:appendix_step_diff}
+\end{equation}
+Substituting into \ref{eq:appendix_smoothness} gives
+\begin{align}
+\mathcal{J}_t(\theta^+)
+&\le
+\mathcal{J}_t(\theta)
++
+\left\langle \nabla \mathcal{J}_t(\theta), \theta^+ - \theta \right\rangle
++
+\frac{L}{2}\|\theta^+ - \theta\|^2 \\
+&=
+\mathcal{J}_t(\theta)
+-
+\eta \left\langle \nabla \mathcal{J}_t(\theta), P_S \nabla \mathcal{J}_t(\theta) \right\rangle
++
+\frac{L\eta^2}{2}\|P_S \nabla \mathcal{J}_t(\theta)\|^2.
+\label{eq:appendix_before_projector_identity}
+\end{align}
+
+Now use that $P_S$ is an orthogonal projector. Hence it is symmetric and idempotent:
+\begin{equation}
+P_S^\top = P_S,
+\qquad
+P_S^2 = P_S.
+\label{eq:appendix_projector_properties}
+\end{equation}
+Therefore,
+\begin{align}
+\left\langle \nabla \mathcal{J}_t(\theta), P_S \nabla \mathcal{J}_t(\theta) \right\rangle
+&=
+\nabla \mathcal{J}_t(\theta)^\top P_S \nabla \mathcal{J}_t(\theta) \\
+&=
+\nabla \mathcal{J}_t(\theta)^\top P_S^\top P_S \nabla \mathcal{J}_t(\theta) \\
+&=
+\|P_S \nabla \mathcal{J}_t(\theta)\|^2.
+\label{eq:appendix_projector_identity}
+\end{align}
+Substituting \ref{eq:appendix_projector_identity} into \ref{eq:appendix_before_projector_identity} yields \ref{eq:appendix_descent_1}. Rearranging gives \ref{eq:appendix_descent_2}. Finally, if $0<\eta\le 1/L$, then
+\begin{equation}
+1-\frac{L\eta}{2}\ge \frac{1}{2},
+\end{equation}
+which implies \ref{eq:appendix_descent_3}. \hfill $\square$
+
+\newpage
+
+\section{Notation Summary}
+In Tab.~\ref{tab:notation}, we provide an overview of the mathematical notation.
+
+\begin{table}[!h]
+\centering
+\small
+\caption{Notation used in the theoretical analysis}
+\begin{tabular}{p{0.20\linewidth} p{0.72\linewidth}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$\mathcal{T}_1, \dots, \mathcal{T}_T$ & Sequence of tasks observed in continual learning. \\
+
+$T$ & Number of tasks in the continual learning sequence. \\
+
+$\theta \in \mathbb{R}^d$ & Full model parameter vector. \\
+
+$d$ & Total number of model parameters. \\
+
+$t$ & Task index. \\
+
+$m$ & Optimization-step index within task $t$. \\
+
+$\theta_t$ & Parameters after completing training on task $t$. \\
+
+$\theta_t^{(m)}$ & Parameters after $m$ optimization steps on task $t$. \\
+
+$\mathcal{L}_t(\theta)$ & Current-task loss at task $t$. \\
+
+$\Omega_t(\theta;\theta_{1:t-1})$ & Method-specific term that preserves previously acquired knowledge. \\
+
+$\lambda$ & Weight of the preservation term. \\
+
+$\mathcal{J}_t(\theta)$ & Full task-$t$ objective, defined as $\mathcal{L}_t(\theta) + \lambda \Omega_t(\theta;\theta_{1:t-1})$. \\
+
+$S \subseteq \{1,\dots,d\}$ & Fixed subset of trainable parameter coordinates defining an adaptation regime. \\
+
+$P_S$ & Orthogonal projector that keeps coordinates in $S$ and zeros out all others. \\
+
+$\eta$ & Step size used by the first-order optimizer. \\
+
+$g_t^{(S)}(\theta)$ & Projected current-task update signal, defined as $P_S \nabla \mathcal{L}_t(\theta)$. \\
+
+$r_t^{(S)}(\theta)$ & Projected preservation update signal, defined as $P_S \nabla \Omega_t(\theta;\theta_{1:t-1})$. \\
+
+$\Gamma_t(S;\theta)$ & Interaction term between projected current-task and preservation signals, defined as $\langle g_t^{(S)}(\theta), r_t^{(S)}(\theta)\rangle$. \\
+
+$P_S \nabla \mathcal{J}_t(\theta)$ & Projected gradient of the full task-$t$ objective. \\
+
+$L$ & Smoothness constant of $\mathcal{J}_t$. \\
+
+$\theta^+$ & One-step projected update from $\theta$, defined in \ref{eq:appendix_theta_plus}. \\
+
+$\|\cdot\|$ & Euclidean norm. \\
+
+$\langle \cdot,\cdot \rangle$ & Standard Euclidean inner product. \\
+\bottomrule
+\end{tabular}
+\label{tab:notation}
+\end{table}
+
+\section{Additional experimental values}
+
+Tables~\ref{tab:cifar100}, \ref{tab:mnist}, \ref{tab:fashion}, \ref{tab:qmnist}, and \ref{tab:kmnist} report the numerical values underlying the results shown in Figures \ref{fig:main_results_fashion_mnist} and \ref{fig:main_results_all_datasets}, listing average accuracy and average forgetting per training regime for each algorithm across CIFAR-100, MNIST, Fashion-MNIST, QMNIST, and KMNIST, together with standard deviations computed over task orderings.
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Average Accuracy and Average Forgetting per ordering $\pm$ std. across different training regimes on the CIFAR-100 dataset}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc cc cc cc cc}
+\toprule
+\multirow{2}{*}{\textbf{Algorithm / Regime}} 
+& \multicolumn{2}{c}{\textbf{Last Block}} 
+& \multicolumn{2}{c}{\textbf{Last 2 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 3 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 6 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Full Finetune (8 Blocks)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget \\
+\midrule
+
+EWC 
+& $0.52 \pm 0.009$ & $0.02 \pm 0.008$ 
+& $0.59 \pm 0.010$ & $0.02 \pm 0.006$ 
+& $0.62 \pm 0.013$ & $0.02 \pm 0.009$ 
+& $0.64 \pm 0.017$ & $0.03 \pm 0.006$ 
+& $0.65 \pm 0.016$ & $0.03 \pm 0.008$ \\
+
+LwF 
+& $0.62 \pm 0.008$ & $0.05 \pm 0.005$ 
+& $0.70 \pm 0.006$ & $0.08 \pm 0.004$ 
+& $0.75 \pm 0.004$ & $0.08 \pm 0.005$ 
+& $0.79 \pm 0.008$ & $0.07 \pm 0.007$ 
+& $0.80 \pm 0.008$ & $0.07 \pm 0.008$ \\
+
+SI 
+& $0.57 \pm 0.007$ & $0.04 \pm 0.006$ 
+& $0.61 \pm 0.013$ & $0.09 \pm 0.012$ 
+& $0.62 \pm 0.021$ & $0.14 \pm 0.019$ 
+& $0.62 \pm 0.018$ & $0.18 \pm 0.015$ 
+& $0.63 \pm 0.017$ & $0.18 \pm 0.017$ \\
+
+GEM 
+& $0.52 \pm 0.008$ & $0.15 \pm 0.010$ 
+& $0.55 \pm 0.010$ & $0.21 \pm 0.011$ 
+& $0.57 \pm 0.012$ & $0.26 \pm 0.011$ 
+& $0.61 \pm 0.012$ & $0.26 \pm 0.014$ 
+& $0.71 \pm 0.008$ & $0.16 \pm 0.011$ \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:cifar100}
+\end{table*}
+
+
+\begin{table*}[t]
+\centering
+\caption{Average Accuracy and Average Forgetting per ordering $\pm$ std. across different training regimes on the MNIST dataset}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc cc cc cc cc}
+\toprule
+\multirow{2}{*}{\textbf{Algorithm / Regime}} 
+& \multicolumn{2}{c}{\textbf{Last Block}} 
+& \multicolumn{2}{c}{\textbf{Last 2 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 3 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 6 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Full Finetune (8 Blocks)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget \\
+\midrule
+
+EWC 
+& $0.98 \pm 0.012$ & $0.02 \pm 0.015$ 
+& $0.91 \pm 0.082$ & $0.11 \pm 0.103$ 
+& $0.87 \pm 0.083$ & $0.16 \pm 0.104$ 
+& $0.86 \pm 0.060$ & $0.18 \pm 0.075$ 
+& $0.89 \pm 0.078$ & $0.14 \pm 0.097$ \\
+
+LwF 
+& $0.99 \pm 0.002$ & $0.01 \pm 0.003$ 
+& $0.99 \pm 0.007$ & $0.01 \pm 0.009$ 
+& $0.99 \pm 0.007$ & $0.01 \pm 0.009$ 
+& $0.99 \pm 0.004$ & $0.01 \pm 0.005$ 
+& $0.99 \pm 0.011$ & $0.01 \pm 0.014$ \\
+
+SI 
+& $0.96 \pm 0.018$ & $0.04 \pm 0.021$ 
+& $0.86 \pm 0.090$ & $0.17 \pm 0.113$ 
+& $0.84 \pm 0.095$ & $0.20 \pm 0.119$ 
+& $0.80 \pm 0.072$ & $0.25 \pm 0.090$ 
+& $0.80 \pm 0.056$ & $0.25 \pm 0.070$ \\
+
+GEM 
+& $0.96 \pm 0.024$ & $0.04 \pm 0.030$ 
+& $0.94 \pm 0.038$ & $0.08 \pm 0.047$ 
+& $0.92 \pm 0.059$ & $0.10 \pm 0.075$ 
+& $0.93 \pm 0.053$ & $0.09 \pm 0.067$ 
+& $0.95 \pm 0.037$ & $0.06 \pm 0.047$ \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:mnist}
+\end{table*}
+
+
+
+\begin{table*}[t]
+\centering
+\caption{Average Accuracy and Average Forgetting per ordering $\pm$ std. across different training regimes on the Fashion MNIST dataset}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc cc cc cc cc}
+\toprule
+\multirow{2}{*}{\textbf{Algorithm / Regime}} 
+& \multicolumn{2}{c}{\textbf{Last Block}} 
+& \multicolumn{2}{c}{\textbf{Last 2 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 3 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 6 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Full Finetune (8 Blocks)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget \\
+\midrule
+
+EWC 
+& $0.92 \pm 0.043$ & $0.09 \pm 0.054$ 
+& $0.91 \pm 0.057$ & $0.10 \pm 0.072$ 
+& $0.86 \pm 0.063$ & $0.16 \pm 0.079$ 
+& $0.81 \pm 0.082$ & $0.23 \pm 0.103$ 
+& $0.85 \pm 0.041$ & $0.17 \pm 0.051$ \\
+
+LwF 
+& $0.91 \pm 0.042$ & $0.10 \pm 0.053$ 
+& $0.90 \pm 0.059$ & $0.12 \pm 0.074$ 
+& $0.86 \pm 0.084$ & $0.17 \pm 0.105$ 
+& $0.85 \pm 0.077$ & $0.17 \pm 0.097$ 
+& $0.82 \pm 0.049$ & $0.21 \pm 0.061$ \\
+
+SI 
+& $0.92 \pm 0.027$ & $0.09 \pm 0.035$ 
+& $0.93 \pm 0.022$ & $0.08 \pm 0.027$ 
+& $0.88 \pm 0.057$ & $0.14 \pm 0.071$ 
+& $0.89 \pm 0.059$ & $0.13 \pm 0.075$ 
+& $0.87 \pm 0.063$ & $0.16 \pm 0.080$ \\
+
+GEM 
+& $0.97 \pm 0.012$ & $0.02 \pm 0.013$ 
+& $0.96 \pm 0.016$ & $0.03 \pm 0.019$ 
+& $0.95 \pm 0.030$ & $0.05 \pm 0.041$ 
+& $0.91 \pm 0.037$ & $0.08 \pm 0.051$ 
+& $0.94 \pm 0.034$ & $0.06 \pm 0.042$ \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:fashion}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Average Accuracy and Average Forgetting per ordering $\pm$ std. across different training regimes on the QMNIST dataset}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc cc cc cc cc}
+\toprule
+\multirow{2}{*}{\textbf{Algorithm / Regime}} 
+& \multicolumn{2}{c}{\textbf{Last Block}} 
+& \multicolumn{2}{c}{\textbf{Last 2 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 3 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 6 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Full Finetune (8 Blocks)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget \\
+\midrule
+
+EWC 
+& $0.98 \pm 0.008$ & $0.01 \pm 0.010$ 
+& $0.91 \pm 0.073$ & $0.10 \pm 0.090$ 
+& $0.90 \pm 0.061$ & $0.12 \pm 0.076$ 
+& $0.92 \pm 0.053$ & $0.10 \pm 0.067$ 
+& $0.85 \pm 0.084$ & $0.19 \pm 0.104$ \\
+
+LwF 
+& $0.99 \pm 0.004$ & $0.01 \pm 0.005$ 
+& $0.99 \pm 0.004$ & $0.01 \pm 0.004$ 
+& $0.99 \pm 0.004$ & $0.01 \pm 0.005$ 
+& $0.98 \pm 0.030$ & $0.03 \pm 0.036$ 
+& $0.98 \pm 0.026$ & $0.03 \pm 0.033$ \\
+
+SI 
+& $0.97 \pm 0.025$ & $0.03 \pm 0.033$ 
+& $0.85 \pm 0.095$ & $0.18 \pm 0.120$ 
+& $0.79 \pm 0.127$ & $0.25 \pm 0.158$ 
+& $0.82 \pm 0.068$ & $0.23 \pm 0.085$ 
+& $0.85 \pm 0.101$ & $0.18 \pm 0.127$ \\
+
+GEM 
+& $0.96 \pm 0.014$ & $0.04 \pm 0.018$ 
+& $0.93 \pm 0.047$ & $0.08 \pm 0.059$ 
+& $0.93 \pm 0.045$ & $0.08 \pm 0.056$ 
+& $0.94 \pm 0.052$ & $0.08 \pm 0.065$ 
+& $0.95 \pm 0.049$ & $0.06 \pm 0.061$ \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:qmnist}
+\end{table*}
+
+
+
+\begin{table*}[t]
+\caption{Average Accuracy and Average Forgetting per ordering $\pm$ std. across different training regimes on the KMNIST dataset}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcc cc cc cc cc}
+\toprule
+\multirow{2}{*}{\textbf{Algorithm / Regime}} 
+& \multicolumn{2}{c}{\textbf{Last Block}} 
+& \multicolumn{2}{c}{\textbf{Last 2 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 3 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Last 6 Blocks}} 
+& \multicolumn{2}{c}{\textbf{Full Finetune (8 Blocks)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget 
+& Acc & Forget \\
+\midrule
+
+EWC 
+& $0.94 \pm 0.010$ & $-0.00 \pm 0.009$ 
+& $0.95 \pm 0.016$ & $0.03 \pm 0.022$ 
+& $0.93 \pm 0.028$ & $0.06 \pm 0.037$ 
+& $0.92 \pm 0.033$ & $0.08 \pm 0.045$ 
+& $0.93 \pm 0.026$ & $0.06 \pm 0.033$ \\
+
+LwF 
+& $0.95 \pm 0.009$ & $0.02 \pm 0.008$ 
+& $0.97 \pm 0.012$ & $0.02 \pm 0.014$ 
+& $0.97 \pm 0.008$ & $0.03 \pm 0.010$ 
+& $0.96 \pm 0.008$ & $0.03 \pm 0.010$ 
+& $0.97 \pm 0.009$ & $0.03 \pm 0.010$ \\
+
+SI 
+& $0.91 \pm 0.025$ & $0.05 \pm 0.037$ 
+& $0.86 \pm 0.035$ & $0.14 \pm 0.045$ 
+& $0.86 \pm 0.050$ & $0.15 \pm 0.061$ 
+& $0.82 \pm 0.047$ & $0.20 \pm 0.057$ 
+& $0.84 \pm 0.081$ & $0.17 \pm 0.099$ \\
+
+GEM 
+& $0.91 \pm 0.014$ & $0.07 \pm 0.017$ 
+& $0.91 \pm 0.016$ & $0.10 \pm 0.019$ 
+& $0.91 \pm 0.016$ & $0.10 \pm 0.021$ 
+& $0.92 \pm 0.014$ & $0.09 \pm 0.018$ 
+& $0.92 \pm 0.020$ & $0.09 \pm 0.026$ \\
+
+\bottomrule
+\end{tabular}
+}
+\label{tab:kmnist}
+\end{table*}
+
+
+
+\end{document}
