@@ -26,13 +26,15 @@ It is provided strictly for reproducibility.
 If you use this work, please cite:
 
 ```cite
-@article{konduru2026structural,
-  title={On the Structural Limitations of Weight-Based Neural Adaptation and the Role of Reversible Behavioral Learning},
-  author={Konduru, Pardhu Sri Rushi Varma},
-  journal={arXiv preprint arXiv:2603.02934},
-  year={2026},
-  doi={10.48550/arXiv.2603.02934}
-}
+@misc{konduru2026structurallimitationsweightbasedneural,
+      title={On the Structural Limitations of Weight-Based Neural Adaptation and the Role of Reversible Behavioral Learning}, 
+      author={Pardhu Sri Rushi Varma Konduru},
+      year={2026},
+      eprint={2603.02934},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2603.02934}, 
+}**
 ```
 
 ------------------------------------------------------------------------
