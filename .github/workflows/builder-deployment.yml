@@ -22,13 +22,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -------- Compile arXiv Preprint --------
-      - name: Compile arXiv Version
-        uses: xu-cheng/latex-action@v3
-        with:
-          working_directory: Papers/Paper-1/arXiv-LaTeX
-          root_file: PaperOne.tex
-
       # -------- Prepare GitHub Pages Content --------
       - name: Prepare Pages content
         run: |
@@ -40,7 +33,7 @@ jobs:
           cp -r arts public/arts
 
           # Copy PDFs (renamed cleanly for public)
-          cp Papers/Paper-1/arXiv-LaTeX/PaperOne.pdf public/papers/RLAE-Preprint.pdf
+          cp Papers/Paper-1/arXiv-LaTeX/arXiv:2603.02934v1.pdf public/papers/arXiv2603.02934v1.pdf
 
       # -------- Upload Pages artifact --------
       - name: Upload Pages artifact
