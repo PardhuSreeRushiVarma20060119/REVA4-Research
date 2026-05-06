@@ -33,7 +33,7 @@ jobs:
           cp -r arts public/arts
 
           # Copy PDFs (renamed cleanly for public)
-          cp Papers/Paper-1/arXiv:2603.02934v1.pdf public/papers/arXiv2603.02934v1.pdf
+          cp Papers/Paper-1/arXiv-2603.02934v1.pdf public/papers/arXiv2603.02934v1.pdf
 
       # -------- Upload Pages artifact --------
       - name: Upload Pages artifact
