@@ -2,6 +2,8 @@
 
 # Reversible Behavioral Learning
 
+A Lightweight Runtime Environment for Dynamic Adapter Routing and Modular Parameter Isolation.
+
 This repository contains the implementation and experimental framework
 accompanying the paper:
 
